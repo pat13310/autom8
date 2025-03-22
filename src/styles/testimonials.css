@@ -1,0 +1,57 @@
+/* Styles pour le carrousel de témoignages */
+.testimonial-slider .slick-slide {
+  padding: 0 10px;
+  height: auto;
+}
+
+.testimonial-slider .slick-track {
+  display: flex !important;
+}
+
+.testimonial-slider .slick-slide {
+  height: inherit !important;
+  display: flex !important;
+}
+
+.testimonial-slider .slick-slide > div {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+.testimonial-slider .slick-dots li button:before {
+  color: white;
+  opacity: 0.5;
+}
+
+.testimonial-slider .slick-dots li.slick-active button:before {
+  color: white;
+  opacity: 1;
+}
+
+/* Masquer les flèches de navigation */
+.testimonial-slider .slick-prev,
+.testimonial-slider .slick-next {
+  display: none !important;
+}
+
+/* Style pour les cartes de témoignages */
+.testimonial-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.testimonial-card blockquote {
+  flex-grow: 1;
+}
+
+/* Animation pour le carrousel */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.testimonial-slider .slick-slide.slick-active {
+  animation: fadeIn 0.5s ease-in-out;
+}

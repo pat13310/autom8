@@ -1,0 +1,8 @@
+{
+  "name": "autom8-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test-supabase": "ts-node --esm supabase-connection.test.ts"
+  }
+}
