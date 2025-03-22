@@ -1,15 +1,15 @@
 # Autom8
 
-Application web moderne développée avec React et TypeScript, offrant une interface utilisateur professionnelle et responsive.
+Site web pro développé avec React et TypeScript, offrant une interface utilisateur professionnelle et responsive.
 
 ## Fonctionnalités principales
 
-- 🏠 **Page d'accueil** avec témoignages clients dynamiques
-- 💰 **Tarification** avec options mensuelles/annuelles et réduction de 17% sur l'abonnement annuel
-- 📝 **Blog** avec articles en Markdown et mise en page responsive
-- 📧 **Formulaire de contact** intégré avec EmailJS
-- 🔄 **Conversion PDF vers Images** avec compression ZIP
-- 🔐 **Système d'authentification** personnalisé pour les superusers
+- **Page d'accueil** avec témoignages clients dynamiques
+- **Tarification** avec options mensuelles/annuelles et réduction de 17% sur l'abonnement annuel
+- **Blog** avec articles en Markdown et mise en page responsive
+- **Formulaire de contact** intégré avec EmailJS
+- **Conversion PDF vers Images** avec compression ZIP
+- **Système d'authentification** personnalisé pour les superusers
 
 ## Technologies utilisées
 
