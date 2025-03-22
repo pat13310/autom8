@@ -6,6 +6,7 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import '../styles/testimonials.css';
 import { Star } from 'lucide-react';
+import { Avatar } from '../components/ui/avatar';
 
 export function TestimonialsSection() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -180,11 +181,10 @@ export function TestimonialsSection() {
                   </blockquote>
                   {renderRating(testimonial.rating)}
                   <figcaption className="mt-4 flex items-center gap-x-4 border-t border-gray-100 pt-4">
-                    <img 
-                      className="h-12 w-12 rounded-full object-cover border-2 border-blue-100" 
-                      src={testimonial.image} 
+                    <Avatar
+                      src={testimonial.image}
                       alt={testimonial.name}
-                      onError={(e) => (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40?text=Error'} 
+                      className="h-12 w-12"
                     />
                     <div>
                       <div className="font-semibold text-gray-900">{testimonial.name}</div>
@@ -228,11 +228,10 @@ export function TestimonialsSection() {
                 </blockquote>
                 {renderRating(testimonial.rating)}
                 <figcaption className="mt-4 flex items-center gap-x-4 border-t border-gray-100 pt-4">
-                  <img 
-                    className="h-12 w-12 rounded-full object-cover border-2 border-blue-100" 
-                    src={testimonial.image} 
+                  <Avatar
+                    src={testimonial.image}
                     alt={testimonial.name}
-                    onError={(e) => (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40?text=Error'} 
+                    className="h-12 w-12"
                   />
                   <div>
                     <div className="font-semibold text-gray-900">{testimonial.name}</div>

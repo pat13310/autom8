@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { supabase, getServiceClient } from '../../lib/supabase';
 import { Testimonial, ActivityLog } from '../../types/testimonial';
 import { Button } from '../../components/ui/button';
 import { EditTestimonialModal } from '../../components/edit-testimonial-modal';
 import { DeleteTestimonialModal } from '../../components/delete-testimonial-modal';
 import { PlusCircle, Pencil, Trash, Clock, Star, Search, RefreshCcw } from 'lucide-react';
+import { Avatar } from '../../components/ui/avatar';
 
 // Récupérer l'utilisateur connecté depuis le localStorage
 function getCurrentUser() {
@@ -152,37 +153,66 @@ export function AdminTestimonials() {
 
   async function handleSaveTestimonial(testimonial: Testimonial) {
     try {
+      // 1. Vérifier l'authentification locale
       const user = getCurrentUser();
+      console.log('Vérification de l\'utilisateur:', {
+        isAuthenticated: !!user,
+        userData: user
+      });
+
       if (!user) {
+        console.error('Erreur d\'authentification: Utilisateur non connecté');
         setAuthError("Vous devez être connecté pour effectuer cette action.");
         return;
       }
+
+      // 2. Obtenir le client service
+      console.log('Obtention du client service Supabase...');
+      const serviceClient = getServiceClient();
+      console.log('Client service obtenu avec succès');
       
       const isNewTestimonial = !testimonial.id;
+      console.log('Type d\'opération:', isNewTestimonial ? 'Création' : 'Modification');
+      console.log('Données du témoignage à sauvegarder:', testimonial);
+      
       let result;
       
       if (isNewTestimonial) {
-        // Créer un nouveau témoignage
-        const { data, error } = await supabase
-          .from('testimonials')
-          .insert([{
-            name: testimonial.name,
-            position: testimonial.position,
-            company: testimonial.company,
-            image: testimonial.image,
-            content: testimonial.content,
-            rating: testimonial.rating,
-            is_featured: testimonial.is_featured,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }])
-          .select();
+        // Créer un nouveau témoignage avec des champs validés
+        const testimonialData = {
+          name: testimonial.name.trim(),
+          position: testimonial.position.trim(),
+          company: testimonial.company.trim(),
+          image: testimonial.image?.trim() || null,
+          content: testimonial.content.trim(),
+          rating: Math.min(Math.max(testimonial.rating, 1), 5), // Valeur entre 1 et 5
+          is_featured: Boolean(testimonial.is_featured)
+        };
+
+        console.log('Données préparées pour insertion:', testimonialData);
         
-        if (error) throw error;
-        result = data?.[0];
+        console.log('Tentative d\'insertion dans Supabase...');
+        const { data, error } = await serviceClient
+          .from('testimonials')
+          .insert([testimonialData])
+          .select()
+          .single();
+        
+        if (error) {
+          console.error('Erreur Supabase lors de l\'insertion:', {
+            code: error.code,
+            message: error.message,
+            details: error.details
+          });
+          throw new Error(`Erreur lors de la création du témoignage: ${error.message}`);
+        }
+        
+        console.log('Réponse de Supabase après insertion:', data);
+        result = data;
         
         // Ajouter un log pour la création
-        await supabase
+        console.log('Ajout du log d\'activité...');
+        const { error: logError } = await serviceClient
           .from('activity_logs')
           .insert([{
             user_id: user.id,
@@ -193,28 +223,50 @@ export function AdminTestimonials() {
             details: `Témoignage créé: ${testimonial.name} (${testimonial.company})`,
             created_at: new Date().toISOString()
           }]);
+
+        if (logError) {
+          console.error('Erreur lors de la création du log:', logError);
+        } else {
+          console.log('Log d\'activité créé avec succès');
+        }
       } else {
         // Mettre à jour un témoignage existant
-        const { data, error } = await supabase
+        const testimonialData = {
+          name: testimonial.name.trim(),
+          position: testimonial.position.trim(),
+          company: testimonial.company.trim(),
+          image: testimonial.image?.trim() || null,
+          content: testimonial.content.trim(),
+          rating: Math.min(Math.max(testimonial.rating, 1), 5),
+          is_featured: Boolean(testimonial.is_featured),
+          updated_at: new Date().toISOString()
+        };
+
+        console.log('Données préparées pour mise à jour:', testimonialData);
+        
+        console.log('Tentative de mise à jour dans Supabase...');
+        const { data, error } = await serviceClient
           .from('testimonials')
-          .update({
-            name: testimonial.name,
-            position: testimonial.position,
-            company: testimonial.company,
-            image: testimonial.image,
-            content: testimonial.content,
-            rating: testimonial.rating,
-            is_featured: testimonial.is_featured,
-            updated_at: new Date().toISOString()
-          })
+          .update(testimonialData)
           .eq('id', testimonial.id)
-          .select();
+          .select()
+          .single();
         
-        if (error) throw error;
-        result = data?.[0];
+        if (error) {
+          console.error('Erreur Supabase lors de la mise à jour:', {
+            code: error.code,
+            message: error.message,
+            details: error.details
+          });
+          throw new Error(`Erreur lors de la mise à jour du témoignage: ${error.message}`);
+        }
         
-        // Ajouter un log pour la mise à jour
-        await supabase
+        console.log('Réponse de Supabase après mise à jour:', data);
+        result = data;
+        
+        // Ajouter un log pour la modification
+        console.log('Ajout du log d\'activité...');
+        const { error: logError } = await serviceClient
           .from('activity_logs')
           .insert([{
             user_id: user.id,
@@ -222,23 +274,103 @@ export function AdminTestimonials() {
             action: 'update',
             entity_type: 'testimonial',
             entity_id: testimonial.id,
-            details: `Témoignage mis à jour: ${testimonial.name} (${testimonial.company})`,
+            details: `Témoignage modifié: ${testimonial.name} (${testimonial.company})`,
             created_at: new Date().toISOString()
           }]);
+
+        if (logError) {
+          console.error('Erreur lors de la création du log:', logError);
+        } else {
+          console.log('Log d\'activité créé avec succès');
+        }
       }
       
       // Rafraîchir les données
+      console.log('Rafraîchissement des données...');
       await fetchTestimonials();
       await fetchLogs();
       
       // Réinitialiser l'état
-      setIsModalOpen(false);
       setEditingTestimonial(null);
       setIsCreating(false);
+      setIsModalOpen(false);
+      
+      console.log('Opération terminée avec succès');
       
     } catch (error) {
-      console.error('Erreur lors de l\'enregistrement du témoignage:', error);
-      alert('Une erreur est survenue lors de l\'enregistrement du témoignage.');
+      console.error('Erreur lors de la sauvegarde du témoignage:', error);
+      setAuthError(error instanceof Error ? error.message : "Une erreur est survenue lors de la sauvegarde du témoignage.");
+    }
+  }
+
+  async function handleDeleteTestimonial(testimonialId: string) {
+    try {
+      // 1. Vérifier l'authentification locale
+      const user = getCurrentUser();
+      console.log('Vérification de l\'utilisateur:', {
+        isAuthenticated: !!user,
+        userData: user
+      });
+
+      if (!user) {
+        console.error('Erreur d\'authentification: Utilisateur non connecté');
+        setAuthError("Vous devez être connecté pour effectuer cette action.");
+        return;
+      }
+
+      // 2. Obtenir le client service
+      console.log('Obtention du client service Supabase...');
+      const serviceClient = getServiceClient();
+      console.log('Client service obtenu avec succès');
+
+      // 3. Supprimer le témoignage
+      console.log('Tentative de suppression du témoignage:', testimonialId);
+      const { error } = await serviceClient
+        .from('testimonials')
+        .delete()
+        .eq('id', testimonialId);
+
+      if (error) {
+        console.error('Erreur Supabase lors de la suppression:', {
+          code: error.code,
+          message: error.message,
+          details: error.details
+        });
+        throw new Error(`Erreur lors de la suppression du témoignage: ${error.message}`);
+      }
+
+      console.log('Témoignage supprimé avec succès');
+
+      // 4. Ajouter un log pour la suppression
+      console.log('Ajout du log d\'activité...');
+      const { error: logError } = await serviceClient
+        .from('activity_logs')
+        .insert([{
+          user_id: user.id,
+          user_email: user.email,
+          action: 'delete',
+          entity_type: 'testimonial',
+          entity_id: testimonialId,
+          details: `Témoignage supprimé`,
+          created_at: new Date().toISOString()
+        }]);
+
+      if (logError) {
+        console.error('Erreur lors de la création du log:', logError);
+      } else {
+        console.log('Log d\'activité créé avec succès');
+      }
+
+      // 5. Rafraîchir les données
+      console.log('Rafraîchissement des données...');
+      await fetchTestimonials();
+      await fetchLogs();
+
+      console.log('Opération terminée avec succès');
+
+    } catch (error) {
+      console.error('Erreur lors de la suppression du témoignage:', error);
+      setAuthError(error instanceof Error ? error.message : "Une erreur est survenue lors de la suppression du témoignage.");
     }
   }
 
@@ -255,29 +387,7 @@ export function AdminTestimonials() {
       }
       
       // Supprimer le témoignage
-      const { error } = await supabase
-        .from('testimonials')
-        .delete()
-        .eq('id', testimonialToDelete.id);
-      
-      if (error) throw error;
-      
-      // Ajouter un log pour la suppression
-      await supabase
-        .from('activity_logs')
-        .insert([{
-          user_id: user.id,
-          user_email: user.email,
-          action: 'delete',
-          entity_type: 'testimonial',
-          entity_id: testimonialToDelete.id,
-          details: `Témoignage supprimé: ${testimonialToDelete.name} (${testimonialToDelete.company})`,
-          created_at: new Date().toISOString()
-        }]);
-      
-      // Rafraîchir les données
-      await fetchTestimonials();
-      await fetchLogs();
+      await handleDeleteTestimonial(testimonialToDelete.id);
       
       // Réinitialiser l'état
       setIsDeleteModalOpen(false);
@@ -296,7 +406,7 @@ export function AdminTestimonials() {
     setIsCreating(false);
   }
 
-  function handleDeleteTestimonial(testimonial: Testimonial) {
+  function handleDeleteTestimonialClick(testimonial: Testimonial) {
     setTestimonialToDelete(testimonial);
     setIsDeleteModalOpen(true);
   }
@@ -533,27 +643,21 @@ export function AdminTestimonials() {
                     {filteredTestimonials.length > 0 ? (
                       filteredTestimonials.map((testimonial) => (
                         <tr key={testimonial.id}>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                             <div className="flex items-center">
-                              {testimonial.image ? (
-                                <div className="flex-shrink-0 h-10 w-10">
-                                  <img 
-                                    className="h-10 w-10 rounded-full object-cover" 
-                                    src={testimonial.image} 
-                                    alt={testimonial.name}
-                                    onError={(e) => (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40?text=Error'} 
-                                  />
-                                </div>
-                              ) : (
-                                <div className="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
-                                  <span className="text-gray-500 font-medium">
-                                    {testimonial.name.charAt(0)}
-                                  </span>
-                                </div>
-                              )}
+                              <div className="h-10 w-10 flex-shrink-0">
+                                <Avatar
+                                  src={testimonial.image}
+                                  alt={testimonial.name}
+                                />
+                              </div>
                               <div className="ml-4">
-                                <div className="text-sm font-medium text-gray-900">{testimonial.name}</div>
-                                <div className="text-sm text-gray-500">{testimonial.position}</div>
+                                <div className="font-medium text-gray-900">
+                                  {testimonial.name}
+                                </div>
+                                <div className="text-gray-500">
+                                  {testimonial.position}
+                                </div>
                               </div>
                             </div>
                           </td>
@@ -589,7 +693,7 @@ export function AdminTestimonials() {
                                 <Pencil className="h-4 w-4" />
                               </button>
                               <button
-                                onClick={() => handleDeleteTestimonial(testimonial)}
+                                onClick={() => handleDeleteTestimonialClick(testimonial)}
                                 className="text-red-600 hover:text-red-900"
                               >
                                 <Trash className="h-4 w-4" />

@@ -1,39 +1,38 @@
-import { ReactNode, useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { getUser } from '@/lib/auth';
-
-interface AdminUser {
-  id: string;
-  email: string;
-  name: string;
-}
+import { useEffect, useState, ReactNode } from 'react';
+import { getCurrentUser } from '@/lib/auth';
+import type { AdminUser } from '@/types/auth';
 
 interface AdminRouteProps {
   children: ReactNode;
 }
 
 export function AdminRoute({ children }: AdminRouteProps) {
-  const [user, setUser] = useState<AdminUser | null | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<AdminUser | null>(null);
   const location = useLocation();
 
   useEffect(() => {
-    async function checkAuth() {
-      try {
-        const userData = await getUser();
-        setUser(userData);
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    }
+    // Vérifier l'utilisateur actuel
+    const currentUser = getCurrentUser();
+    setUser(currentUser);
+    setLoading(false);
 
-    checkAuth();
+    // Écouter les changements d'authentification
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'autom8_user') {
+        const updatedUser = getCurrentUser();
+        setUser(updatedUser);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">

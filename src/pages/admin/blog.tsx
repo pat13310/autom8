@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { PlusCircle, Pencil, Trash2, Save, X, Clock, Search, Filter, Tag, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
-import ReactMarkdown from 'react-markdown';
+import { MarkdownRenderer } from '@/components/markdown/MarkdownRenderer';
 import { supabase } from '@/lib/supabase';
 import { DeletePostModal } from '@/components/delete-post-modal';
+import { MarkdownEditor } from '@/components/markdown/MarkdownEditor';
 
 interface Post {
   id: string;
@@ -412,6 +413,7 @@ export function AdminBlog() {
     const [formData, setFormData] = useState<Partial<Post>>(
       post || {
         title: '',
+        slug: '',
         description: '',
         content: '',
         image: '',
@@ -456,6 +458,10 @@ export function AdminBlog() {
       } finally {
         setIsSaving(false);
       }
+    };
+
+    const handleContentChange = (content: string) => {
+      setFormData(prev => ({ ...prev, content }));
     };
 
     return (
@@ -576,13 +582,12 @@ export function AdminBlog() {
 
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">Contenu (Markdown)</label>
-              <textarea
-                value={formData.content || ''}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2.5 px-3 font-mono"
-                rows={20}
-                placeholder="Contenu de l'article en Markdown..."
-              />
+              <div className="min-h-[500px]">
+                <MarkdownEditor
+                  value={formData.content || ''}
+                  onChange={handleContentChange}
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -643,8 +648,11 @@ export function AdminBlog() {
               </div>
             )}
             
-            <div className="prose prose-blue max-w-none border rounded-md p-6 overflow-auto max-h-[400px] bg-gray-50">
-              <ReactMarkdown>{formData.content || '*Aucun contenu à afficher*'}</ReactMarkdown>
+            <div className="prose dark:prose-invert max-w-none border rounded-md p-6 overflow-auto max-h-[400px] bg-gray-50">
+              <MarkdownRenderer 
+                content={formData.content || '*Aucun contenu à afficher*'} 
+                className="max-w-none"
+              />
             </div>
             
             {!formData.published && (

@@ -6,6 +6,7 @@ interface AdminUser {
   email: string;
   name: string;
   role?: 'superuser';
+  auth_role: string;
 }
 
 /**
@@ -79,7 +80,8 @@ export async function signIn(email: string, password: string): Promise<{ user: A
       id: superuser.id,
       email: superuser.email,
       name: superuser.name || 'Superuser',
-      role: 'superuser' as const
+      role: 'superuser' as const,
+      auth_role: 'superuser'
     };
     
     localStorage.setItem('autom8_user', JSON.stringify(user));
@@ -102,31 +104,19 @@ export async function signOut() {
   }
 }
 
-export async function getUser(): Promise<AdminUser | null> {
+export function getCurrentUser(): AdminUser | null {
   try {
-    // Vérifier si nous avons un utilisateur en session locale
-    const localUser = localStorage.getItem('autom8_user');
-    if (localUser) {
-      const user = JSON.parse(localUser) as AdminUser;
-      
-      // Vérifier si le superuser existe toujours dans la base de données
-      const { data: superusers, error: superuserError } = await supabase
-        .from('superuser')
-        .select('id, email, name')
-        .eq('email', user.email);
-      
-      if (!superuserError && superusers && superusers.length > 0) {
-        return {
-          ...superusers[0],
-          role: 'superuser'
-        };
-      } else {
-        // Si le superuser n'existe plus, supprimer la session locale
-        localStorage.removeItem('autom8_user');
-      }
+    const userStr = localStorage.getItem('autom8_user');
+    if (!userStr) return null;
+    
+    const user = JSON.parse(userStr) as AdminUser;
+    
+    // Vérifier que l'utilisateur a le rôle superuser
+    if (!user.auth_role || user.auth_role !== 'superuser') {
+      return null;
     }
-
-    return null;
+    
+    return user;
   } catch (error) {
     console.error('Erreur lors de la récupération de l\'utilisateur:', error);
     return null;
@@ -135,15 +125,14 @@ export async function getUser(): Promise<AdminUser | null> {
 
 export function onAuthStateChange(callback: (user: AdminUser | null) => void) {
   // Vérifier l'état initial
-  getUser().then(user => {
-    callback(user);
+  const user = getCurrentUser();
+  callback(user);
+  
+  // Écouter les changements de session
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'autom8_user') {
+      const user = getCurrentUser();
+      callback(user);
+    }
   });
-  
-  // Nous n'utilisons pas l'API Auth de Supabase,
-  // donc nous ne pouvons pas écouter les changements d'état d'authentification.
-  // À la place, nous pourrions créer un écouteur personnalisé pour localStorage,
-  // mais ce n'est pas standard en TypeScript/JavaScript.
-  
-  // Fonction pour nettoyer (vide dans ce cas)
-  return () => {};
 }
