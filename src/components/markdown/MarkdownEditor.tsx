@@ -24,8 +24,7 @@ import {
 import { 
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuTrigger,
-  DropdownMenuItem
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 
 interface MarkdownEditorProps {
@@ -279,6 +278,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
       const selectedText = value.substring(start, end);
+      
       let newContent = value;
       let newCursorPos = start;
       

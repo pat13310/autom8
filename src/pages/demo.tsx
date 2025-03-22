@@ -1,12 +1,23 @@
-import { Bot, Zap, BarChart, Shield } from 'lucide-react';
-import { useState } from 'react';
+import { Bot, Zap, BarChart, Shield, LucideIcon } from 'lucide-react';
+import { useState, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+
+interface Feature {
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  demo: ReactNode;
+}
+
+interface Features {
+  [key: string]: Feature;
+}
 
 export function Demo() {
   const [activeFeature, setActiveFeature] = useState('automation');
 
-  const features = {
+  const features: Features = {
     automation: {
       title: 'Automatisation Intelligente',
       description: 'Découvrez comment notre IA peut automatiser vos tâches répétitives.',
@@ -131,26 +142,29 @@ export function Demo() {
 
         <div className="mt-16">
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {Object.entries(features).map(([key, feature]) => (
-              <button
-                key={key}
-                onClick={() => setActiveFeature(key)}
-                className={`p-4 rounded-lg text-left transition-all ${
-                  activeFeature === key
-                    ? 'bg-blue-50 ring-2 ring-blue-600'
-                    : 'hover:bg-gray-50'
-                }`}
-              >
-                <feature.icon className={`h-6 w-6 ${
-                  activeFeature === key ? 'text-blue-600' : 'text-gray-600'
-                }`} />
-                <h3 className={`mt-2 font-semibold ${
-                  activeFeature === key ? 'text-blue-600' : 'text-gray-900'
-                }`}>
-                  {feature.title}
-                </h3>
-              </button>
-            ))}
+            {Object.entries(features).map(([key, feature]) => {
+              const Icon = feature.icon;
+              return (
+                <button
+                  key={key}
+                  onClick={() => setActiveFeature(key)}
+                  className={`flex flex-col items-center p-4 rounded-lg transition-all ${
+                    activeFeature === key
+                      ? 'bg-blue-50 ring-2 ring-blue-600'
+                      : 'hover:bg-gray-50'
+                  }`}
+                >
+                  <Icon className={`h-6 w-6 ${
+                    activeFeature === key ? 'text-blue-600' : 'text-gray-600'
+                  }`} />
+                  <h3 className={`mt-2 font-semibold ${
+                    activeFeature === key ? 'text-blue-600' : 'text-gray-900'
+                  }`}>
+                    {feature.title}
+                  </h3>
+                </button>
+              );
+            })}
           </div>
 
           <div className="mt-12">
