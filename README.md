@@ -12,6 +12,7 @@
 
 [Documentation](#-documentation) •
 [Installation](#-installation) •
+[Configuration](#-configuration) •
 [Fonctionnalités](#-fonctionnalités-principales) •
 [Contact](#-contact)
 
@@ -145,6 +146,51 @@ npm run dev
 yarn dev
 ```
 </details>
+
+## ⚙️ Configuration
+
+> ⚠️ **IMPORTANT**: Les variables d'environnement sont sensibles et ne doivent JAMAIS être partagées ou committées dans Git.
+
+### 1. Configuration de Supabase
+
+1. Créez un compte sur [Supabase](https://supabase.com)
+2. Créez un nouveau projet
+3. Dans les paramètres du projet, récupérez :
+   - `Project URL` → sera utilisé comme `VITE_SUPABASE_URL`
+   - `anon/public key` → sera utilisé comme `VITE_SUPABASE_ANON_KEY`
+
+### 2. Fichier d'environnement
+
+1. Créez un fichier `.env` à la racine du projet
+2. ⚠️ **Ne committez JAMAIS ce fichier** (il est déjà dans .gitignore)
+3. Ajoutez les variables suivantes :
+
+```env
+# Supabase - Configuration requise
+VITE_SUPABASE_URL=https://votre-projet.supabase.co     # URL de votre projet
+VITE_SUPABASE_ANON_KEY=votre-clé-anon                  # Clé publique de votre projet
+
+# EmailJS - Pour le formulaire de contact
+VITE_EMAILJS_USER_ID=votre-id-emailjs                  # Optionnel si vous n'utilisez pas le formulaire
+```
+
+### 3. Vérification
+
+Pour vérifier que votre configuration est correcte :
+
+```bash
+npm run dev
+```
+
+Si tout est bien configuré :
+- La connexion à Supabase sera établie
+- Le formulaire de contact sera fonctionnel
+- Les données seront correctement chargées
+
+En cas d'erreur, vérifiez :
+1. Que le fichier `.env` existe
+2. Que les variables sont correctement nommées
+3. Que les valeurs correspondent à votre projet Supabase
 
 ## 📁 Structure du projet
 
