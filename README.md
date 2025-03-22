@@ -1,64 +1,112 @@
 # 🚀 Autom8
 
-🌟 Site web professionnel développé avec React et TypeScript, offrant une interface utilisateur moderne et responsive pour l'automatisation des processus métier.
+<div align="center">
+
+![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-4.9-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind-3.0-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-Database-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-Build_Tool-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+
+🌟 Solution professionnelle d'automatisation des processus métier
+
+[Documentation](#-documentation) •
+[Installation](#-installation) •
+[Fonctionnalités](#-fonctionnalités-principales) •
+[Contact](#-contact)
+
+</div>
+
+---
+
+## 📚 Documentation
+
+> Application web moderne développée avec React et TypeScript, offrant une interface utilisateur responsive et intuitive.
+
+### ⭐ Points forts
+- 🎯 Interface utilisateur moderne et intuitive
+- 📱 Design responsive et adaptatif
+- 🔒 Sécurité renforcée avec authentification personnalisée
+- 🚀 Performance optimisée avec Vite
+- 🎨 Design soigné avec Tailwind CSS
 
 ## ✨ Fonctionnalités principales
 
-- 🏠 **Page d'accueil**
-  - Témoignages clients dynamiques
-  - Design moderne et épuré
-  - Interface responsive
+<details>
+<summary>🏠 <strong>Page d'accueil</strong></summary>
 
-- 💰 **Tarification**
-  - Options mensuelles et annuelles
-  - 17% de réduction sur l'abonnement annuel
-  - Affichage dynamique des prix
-  - Solutions entreprise personnalisées
+- Témoignages clients dynamiques
+- Design moderne et épuré
+- Interface responsive
+</details>
 
-- 📝 **Blog**
-  - Articles en Markdown pour une maintenance facile
-  - Mise en page responsive (1-3 colonnes)
-  - Métadonnées des articles (date, temps de lecture, auteur)
-  - Design moderne avec cartes interactives
+<details>
+<summary>💰 <strong>Tarification</strong></summary>
 
-- 📧 **Contact**
-  - Formulaire intégré avec EmailJS
-  - Design avec effets visuels et dégradés
-  - Validation des champs en temps réel
-  - Envoi automatique à xenatronics@gmx.fr
+- Options mensuelles et annuelles
+- 17% de réduction sur l'abonnement annuel
+- Affichage dynamique des prix
+- Solutions entreprise personnalisées
+</details>
 
-- 🔄 **Outils**
-  - Conversion PDF vers Images avec compression ZIP
-  - Interface intuitive
-  - Traitement rapide des fichiers
+<details>
+<summary>📝 <strong>Blog</strong></summary>
 
-- 🔐 **Administration**
-  - Système d'authentification personnalisé pour les superusers
-  - Gestion des articles du blog
-  - Gestion des témoignages clients
-  - Interface d'administration sécurisée
+- Articles en Markdown pour une maintenance facile
+- Mise en page responsive (1-3 colonnes)
+- Métadonnées des articles (date, temps de lecture, auteur)
+- Design moderne avec cartes interactives
+</details>
 
-## 🛠️ Technologies utilisées
+<details>
+<summary>📧 <strong>Contact</strong></summary>
 
-- ⚛️ **Frontend**
-  - React 18
-  - TypeScript
-  - Vite (bundler)
-  - Tailwind CSS
-  - EmailJS
+- Formulaire intégré avec EmailJS
+- Design avec effets visuels et dégradés
+- Validation des champs en temps réel
+- Envoi automatique à xenatronics@gmx.fr
+</details>
 
-- 🗄️ **Backend**
-  - Supabase (base de données)
-  - PyMuPDF (conversion PDF)
-  - API REST
+<details>
+<summary>🔄 <strong>Outils</strong></summary>
 
-- 🔧 **Outils**
-  - Git
-  - npm/yarn
-  - ESLint
-  - PostCSS
+- Conversion PDF vers Images avec compression ZIP
+- Interface intuitive
+- Traitement rapide des fichiers
+</details>
+
+<details>
+<summary>🔐 <strong>Administration</strong></summary>
+
+- Système d'authentification personnalisé pour les superusers
+- Gestion des articles du blog
+- Gestion des témoignages clients
+- Interface d'administration sécurisée
+</details>
+
+## 🛠️ Stack technique
+
+### ⚛️ Frontend
+![React](https://img.shields.io/badge/React-18-blue?logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-4.9-blue?logo=typescript)
+![Vite](https://img.shields.io/badge/Vite-Latest-purple?logo=vite)
+![Tailwind](https://img.shields.io/badge/Tailwind-3.0-teal?logo=tailwind-css)
+![EmailJS](https://img.shields.io/badge/EmailJS-Integration-red)
+
+### 🗄️ Backend
+![Supabase](https://img.shields.io/badge/Supabase-Database-green?logo=supabase)
+![PyMuPDF](https://img.shields.io/badge/PyMuPDF-PDF_Processing-blue)
+![REST API](https://img.shields.io/badge/REST-API-green)
+
+### 🔧 Outils
+![Git](https://img.shields.io/badge/Git-Version_Control-orange?logo=git)
+![npm](https://img.shields.io/badge/npm-Package_Manager-red?logo=npm)
+![ESLint](https://img.shields.io/badge/ESLint-Linting-purple?logo=eslint)
+![PostCSS](https://img.shields.io/badge/PostCSS-Styling-dd3a0a?logo=postcss)
 
 ## 📋 Prérequis
+
+> Assurez-vous d'avoir installé les éléments suivants :
 
 - 📦 Node.js (v16+)
 - 📦 npm ou yarn
@@ -66,20 +114,23 @@
 
 ## 🚀 Installation
 
-1. 📥 **Cloner le repository**
+<details>
+<summary>📥 <strong>Étapes d'installation</strong></summary>
+
+1. **Cloner le repository**
 ```bash
 git clone https://github.com/pat13310/autom8.git
 cd autom8
 ```
 
-2. 📦 **Installer les dépendances**
+2. **Installer les dépendances**
 ```bash
 npm install
 # ou
 yarn install
 ```
 
-3. ⚙️ **Configuration**
+3. **Configuration**
 Créer un fichier `.env` à la racine du projet :
 ```env
 VITE_SUPABASE_URL=votre_url_supabase
@@ -87,12 +138,13 @@ VITE_SUPABASE_ANON_KEY=votre_clé_anon
 VITE_EMAILJS_USER_ID=votre_id_emailjs
 ```
 
-4. 🏃‍♂️ **Lancer le serveur de développement**
+4. **Lancer le serveur de développement**
 ```bash
 npm run dev
 # ou
 yarn dev
 ```
+</details>
 
 ## 📁 Structure du projet
 
@@ -107,28 +159,46 @@ yarn dev
 └── 📝 types/         # Types TypeScript
 ```
 
-## 🔧 Scripts disponibles
+## ⚡ Scripts disponibles
 
-- 🏃‍♂️ `npm run dev` : Lance le serveur de développement
-- 🏗️ `npm run build` : Compile le projet pour la production
-- 🧪 `npm run test` : Lance les tests
-- 🔍 `npm run lint` : Vérifie le code avec ESLint
+| Commande | Description |
+|----------|-------------|
+| `npm run dev` | 🏃‍♂️ Lance le serveur de développement |
+| `npm run build` | 🏗️ Compile le projet pour la production |
+| `npm run test` | 🧪 Lance les tests |
+| `npm run lint` | 🔍 Vérifie le code avec ESLint |
 
 ## 🤝 Contribution
 
-Les contributions sont les bienvenues ! N'hésitez pas à :
+> Les contributions sont les bienvenues !
+
 1. 🍴 Forker le projet
-2. 🔧 Créer une branche pour votre fonctionnalité
-3. 📝 Commiter vos changements
-4. 🚀 Pousser vers la branche
+2. 🔧 Créer une branche (`git checkout -b feature/amélioration`)
+3. 📝 Commiter vos changements (`git commit -m 'feat: Ajout d'une nouvelle fonctionnalité'`)
+4. 🚀 Pousser la branche (`git push origin feature/amélioration`)
 5. 📫 Ouvrir une Pull Request
 
 ## 📞 Contact
+
+<div align="center">
+
+[![Email](https://img.shields.io/badge/Email-Contact-blue?style=for-the-badge&logo=gmail)](mailto:xenatronics@gmx.fr)
+[![Website](https://img.shields.io/badge/Website-Autom8-green?style=for-the-badge&logo=web)](https://autom8.fr)
 
 Pour toute question ou suggestion :
 - 📧 Utilisez le formulaire de contact sur le site
 - 💼 Consultez nos offres entreprise pour un accompagnement personnalisé
 
+</div>
+
 ## 📄 Licence
 
 Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
+
+---
+
+<div align="center">
+
+Développé avec ❤️ par l'équipe Autom8
+
+</div>
