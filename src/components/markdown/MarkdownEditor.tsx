@@ -18,7 +18,8 @@ import {
   ListOrdered,
   Table,
   Palette,
-  Plus
+  Plus,
+  Paintbrush
 } from 'lucide-react';
 import { 
   DropdownMenu,
@@ -101,12 +102,17 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   value,
   onChange,
 }) => {
-  const [activeTab, setActiveTab] = useState('edit');
+  const [activeTab, setActiveTab] = useState<string>('edit');
   const [customColor, setCustomColor] = useState('#3b82f6'); // Couleur par défaut
   const [history, setHistory] = useState<string[]>([value]);
-  const [historyIndex, setHistoryIndex] = useState(0);
+  const [historyIndex, setHistoryIndex] = useState<number>(0);
   const [lastCursorPosition, setLastCursorPosition] = useState<number>(0);
   const [lastScrollPosition, setLastScrollPosition] = useState<number>(0);
+  const [lastStyle, setLastStyle] = useState<{ 
+    type: string, 
+    color?: string,
+    label?: string 
+  }>({ type: 'bold', label: 'Gras' });
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Effet pour restaurer la position du curseur après un rendu
@@ -121,8 +127,12 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
 
   // Mettre à jour le contenu et positionner le curseur
   const updateContentAndPosition = (newValue: string, newCursorPos: number) => {
-    // Sauvegarder la position de défilement
+    // Sauvegarder la position de défilement et du curseur
     const scrollTop = textareaRef.current?.scrollTop || 0;
+    
+    // Sauvegarder la position du curseur pour une utilisation ultérieure
+    setLastCursorPosition(newCursorPos);
+    setLastScrollPosition(scrollTop);
     
     // Mettre à jour le contenu
     onChange(newValue);
@@ -135,13 +145,13 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     setHistoryIndex(newHistory.length - 1);
     
     // Restaurer la position de défilement et positionner le curseur
-    requestAnimationFrame(() => {
+    setTimeout(() => {
       if (textareaRef.current) {
         textareaRef.current.scrollTop = scrollTop;
         textareaRef.current.focus();
         textareaRef.current.setSelectionRange(newCursorPos, newCursorPos);
       }
-    });
+    }, 0);
   };
 
   const handleUndo = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -164,7 +174,8 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
 
   const handleToolbarAction = (
     e: React.MouseEvent<HTMLButtonElement>,
-    action: string
+    action: string,
+    color?: string
   ) => {
     e.preventDefault();
     const textarea = textareaRef.current;
@@ -173,8 +184,33 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const selectedText = value.substring(start, end);
+    
     let replacement = '';
-
+    
+    // Enregistrer le style actuel pour une utilisation ultérieure
+    if (action === 'textColor' || action === 'bgColor') {
+      setLastStyle({ 
+        type: action, 
+        color, 
+        label: action === 'textColor' ? 'Couleur de texte' : 'Couleur de fond' 
+      });
+    } else {
+      let label = '';
+      switch (action) {
+        case 'bold': label = 'Gras'; break;
+        case 'italic': label = 'Italique'; break;
+        case 'heading1': label = 'Titre 1'; break;
+        case 'heading2': label = 'Titre 2'; break;
+        case 'heading3': label = 'Titre 3'; break;
+        case 'link': label = 'Lien'; break;
+        case 'image': label = 'Image'; break;
+        case 'quote': label = 'Citation'; break;
+        case 'code': label = 'Code'; break;
+        default: label = action;
+      }
+      setLastStyle({ type: action, label });
+    }
+    
     switch (action) {
       case 'bold':
         replacement = `<b>${selectedText}</b>`;
@@ -183,19 +219,19 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         replacement = `<i>${selectedText}</i>`;
         break;
       case 'heading1':
-        replacement = `<h1 class="text-2xl font-bold">${selectedText}</h1><br>`;
+        replacement = `<h1 class="text-2xl font-bold">${selectedText}</h1>`;
         break;
       case 'heading2':
-        replacement = `<h2 class="text-xl font-semibold">${selectedText}</h2><br>`;
+        replacement = `<h2 class="text-xl font-semibold">${selectedText}</h2>`;
         break;
       case 'heading3':
-        replacement = `<h3 class="text-lg font-medium">${selectedText}</h3><br>`;
+        replacement = `<h3 class="text-lg font-medium">${selectedText}</h3>`;
         break;
       case 'link':
         replacement = `<a href="url">${selectedText}</a>`;
         break;
       case 'image':
-        replacement = `<img src="url" alt="${selectedText}">`;
+        replacement = `<img src="url" alt="${selectedText}" />`;
         break;
       case 'quote':
         replacement = `<blockquote>${selectedText}</blockquote>`;
@@ -204,12 +240,12 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         replacement = `<code>${selectedText}</code>`;
         break;
       default:
-        break;
+        replacement = selectedText;
     }
-
+    
     const newContent = value.substring(0, start) + replacement + value.substring(end);
-    const newCursorPos = start + replacement.length;
-    updateContentAndPosition(newContent, newCursorPos);
+    const cursorPos = start + replacement.length;
+    updateContentAndPosition(newContent, cursorPos);
   };
 
   const insertHeading = (level: number) => (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -383,12 +419,12 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     
     let replacement = '';
     if (selectedText.trim() === '') {
-      replacement = "- Item 1\n- Item 2\n- Item 3";
+      replacement = "- Item 1<br>\n- Item 2<br>\n- Item 3<br>";
     } else {
       // Convertir le texte sélectionné en liste
       replacement = selectedText
         .split('\n')
-        .map(line => line.trim() ? `- ${line}` : line)
+        .map(line => line.trim() ? `- ${line}<br>` : line)
         .join('\n');
     }
     
@@ -409,12 +445,12 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     
     let replacement = '';
     if (selectedText.trim() === '') {
-      replacement = "1. Item 1\n2. Item 2\n3. Item 3";
+      replacement = "1. Item 1<br>\n2. Item 2<br>\n3. Item 3<br>";
     } else {
       // Convertir le texte sélectionné en liste numérotée
       replacement = selectedText
         .split('\n')
-        .map((line, index) => line.trim() ? `${index + 1}. ${line}` : line)
+        .map((line, index) => line.trim() ? `${index + 1}. ${line}<br>` : line)
         .join('\n');
     }
     
@@ -461,6 +497,15 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
 
   const insertColor = (color: string, type: 'text' | 'background') => (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
+    const action = type === 'text' ? 'textColor' : 'bgColor';
+    
+    // Enregistrer le style de couleur pour une utilisation ultérieure
+    setLastStyle({ 
+      type: action, 
+      color, 
+      label: type === 'text' ? 'Couleur de texte' : 'Couleur de fond' 
+    });
+    
     const template = type === 'text' 
       ? `<span style="color: ${color}">$1</span>` 
       : `<span style="background-color: ${color}">$1</span>`;
@@ -482,6 +527,84 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   const handleColorChange = (color: string) => {
     setCustomColor(color);
     insertColor(color, 'text');
+  };
+
+  const applyLastStyle = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = value.substring(start, end);
+    
+    if (selectedText.trim() === '') return;
+    
+    let replacement = '';
+    let cursorPos = start;
+    
+    switch (lastStyle.type) {
+      case 'bold':
+        replacement = `<b>${selectedText}</b>`;
+        cursorPos = start + replacement.length;
+        break;
+      case 'italic':
+        replacement = `<i>${selectedText}</i>`;
+        cursorPos = start + replacement.length;
+        break;
+      case 'heading1':
+        replacement = `<h1 class="text-2xl font-bold">${selectedText}</h1>`;
+        cursorPos = start + replacement.length;
+        break;
+      case 'heading2':
+        replacement = `<h2 class="text-xl font-semibold">${selectedText}</h2>`;
+        cursorPos = start + replacement.length;
+        break;
+      case 'heading3':
+        replacement = `<h3 class="text-lg font-medium">${selectedText}</h3>`;
+        cursorPos = start + replacement.length;
+        break;
+      case 'link':
+        replacement = `<a href="url">${selectedText}</a>`;
+        cursorPos = start + replacement.length;
+        break;
+      case 'image':
+        replacement = `<img src="url" alt="${selectedText}" />`;
+        cursorPos = start + replacement.length;
+        break;
+      case 'quote':
+        replacement = `<blockquote>${selectedText}</blockquote>`;
+        cursorPos = start + replacement.length;
+        break;
+      case 'code':
+        replacement = `<code>${selectedText}</code>`;
+        cursorPos = start + replacement.length;
+        break;
+      case 'textColor':
+        if (lastStyle.color) {
+          replacement = `<span style="color: ${lastStyle.color}">${selectedText}</span>`;
+          cursorPos = start + replacement.length;
+        } else {
+          replacement = selectedText;
+          cursorPos = start + replacement.length;
+        }
+        break;
+      case 'bgColor':
+        if (lastStyle.color) {
+          replacement = `<span style="background-color: ${lastStyle.color}">${selectedText}</span>`;
+          cursorPos = start + replacement.length;
+        } else {
+          replacement = selectedText;
+          cursorPos = start + replacement.length;
+        }
+        break;
+      default:
+        replacement = selectedText;
+        cursorPos = start + replacement.length;
+    }
+    
+    const newContent = value.substring(0, start) + replacement + value.substring(end);
+    updateContentAndPosition(newContent, cursorPos);
   };
 
   return (
@@ -532,6 +655,9 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         </Button>
         <Button variant="ghost" size="sm" onClick={insertTable} title="Tableau">
           <Table size={18} />
+        </Button>
+        <Button variant="ghost" size="sm" onClick={applyLastStyle} title={`Appliquer le dernier style (${lastStyle.label})`}>
+          <Paintbrush size={18} />
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
